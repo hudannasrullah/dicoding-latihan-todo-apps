@@ -14,6 +14,7 @@ document.addEventListener("DOMContentLoaded", function () {
     todos.push(todoObject);
 
     document.dispatchEvent(new Event(RENDER_EVENT));
+    saveData();
   }
 
   const todos = [];
@@ -97,6 +98,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
       todoTarget.isCompleted = true;
       document.dispatchEvent(new Event(RENDER_EVENT));
+      saveData();
     }
 
     return container;
@@ -108,6 +110,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     todos.splice(todoTarget, 1);
     document.dispatchEvent(new Event(RENDER_EVENT));
+    saveData();
   }
 
   function undoTaskFormCompleted(todoId) {
@@ -117,7 +120,31 @@ document.addEventListener("DOMContentLoaded", function () {
 
     todoTarget.isCompleted = false;
     document.dispatchEvent(new Event(RENDER_EVENT));
+    saveData();
   }
+
+  function saveData() {
+    if (isStorageExist()) {
+      const parsed = JSON.stringify(todos);
+      localStorage.setItem(STORAGE_KEY, parsed);
+      document.dispatchEvent(new Event(SAVED_EVENT));
+    }
+  }
+
+  const SAVED_EVENT = 'saved_todo';
+  const STORAGE_KEY = 'TODO_APPS';
+
+  function isStorageExist() {
+    if (typeof (Storage) === undefined) {
+      alert('Browser kamu tidak mendukung local storage');
+      return false;
+    }
+    return true;
+  }
+
+  document.addEventListener(SAVED_EVENT, function () {
+    console.log(localStorage.getItem(STORAGE_KEY));
+  });
 
   document.addEventListener(RENDER_EVENT, function () {
     const uncompletedTODOList = document.getElementById("todos");
